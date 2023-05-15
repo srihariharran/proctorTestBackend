@@ -292,7 +292,7 @@ class DataBase:
         try:
             tbDetail=self.checkTestReportTableExists(tb_name)
             if(not (tbDetail['status'])):
-                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,details JSON NOT NULL,tabSwitchCount int DEFAULT NULL,webcamCount int DEFAULT NULL,submittedBy varchar(50) NOT NULL,submittedOn TEXT NOT NULL, PRIMARY KEY (id)) ")
+                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,questionDetails json DEFAULT NULL,tabSwitchCount int DEFAULT NULL,webcamCount int DEFAULT NULL,doubtImages json DEFAULT NULL,testDetails json DEFAULT NULL,submittedBy varchar(50) NOT NULL,startedOn TEXT NOT NULL,submittedOn TEXT NOT NULL, PRIMARY KEY (id)) ")
                 db.commit()
                 db_cursor.close()
                 return {
@@ -301,6 +301,7 @@ class DataBase:
                 }
 
         except Exception as e:
+            print(e)
             return {
                 "message":str(e),
                 "status":False

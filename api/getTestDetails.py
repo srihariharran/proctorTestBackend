@@ -51,6 +51,7 @@ def getTestDetails():
                 dbInfo.createQuestionTable(tb_name)
                 db_cursor.execute("SELECT * FROM "+tb_name+" AS t1 JOIN (SELECT id FROM "+tb_name+" ORDER BY RAND() LIMIT "+str(noOfQuestion)+") as t2 ON t1.id=t2.id")
                 result=db_cursor.fetchall()
+                rows=db_cursor.rowcount
                 details=[]
                 for res in result:
                     if str(res[2])=="None":
@@ -72,7 +73,7 @@ def getTestDetails():
                     "duration":duration,
                     "tabSwitchLimit":tabSwitchLimit,
                     "webcam":webcam,
-                    "noOfQuestion":noOfQuestion,
+                    "noOfQuestion":rows,
                     "webcamLimit":webcamLimit,  
                     "details":details
                 }
