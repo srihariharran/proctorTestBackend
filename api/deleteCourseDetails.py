@@ -7,14 +7,14 @@ import json
 from passlib.hash import sha256_crypt   
 from datetime import datetime as dt
 
-submitTestDetailsBlueprint = Blueprint('submitTestDetailsBlueprint',__name__)
+deleteCourseDetailsBlueprint = Blueprint('deleteCourseDetailsBlueprint',__name__)
 
 dbInfo = DataBase()
 
 # Route for register user details
-@submitTestDetailsBlueprint.route('/test/submitDetails',methods=['POST'])
+@deleteCourseDetailsBlueprint.route('/course/deleteDetails',methods=['POST'])
 @jwt_required()
-def submitTestDetails():
+def deleteCourseDetails():
     # Checking for Request Method
     if request.method=='POST':
         if 'cookie' in session:
@@ -29,33 +29,13 @@ def submitTestDetails():
                     "status":False
                 }
             try:
-                # print(data)
                 courseId=data["courseId"]
-                # reportId=data["reportId"]
-                tb_name=str(courseId)+"_test_report"
-                dbInfo.createTestReportTable(tb_name)
-                details=data["details"]
-                images=data["images"]
-                webcamCount=data["webcamCount"]
-                tabSwitchCount=data["tabSwitchCount"]
-                submittedBy=session['username']
-                submittedOn=dt.utcnow()
-                submittedOn=submittedOn.isoformat("T")
-                submittedOn=submittedOn[0:23] + "Z"
-                ip=data['ip']
-                platform=data['platform']
-                print(data)
-                if 'reportId' in data and data['reportId']!='':
-                    reportId=data['reportId']
-                else:
-                    query="SELECT id FROM "+tb_name+" WHERE testDetails LIKE '%"+str(ip)+"%' AND testDetails LIKE '%"+str(platform)+"%' ORDER BY id DESC LIMIT 1"
-                    db_cursor.execute(query)
-                    reportId=db_cursor.fetchall()[0][0]
-                print(reportId)
-                db_cursor.execute("UPDATE "+tb_name+" SET questionDetails=%s,tabSwitchCount=%s,webcamCount=%s,doubtImages=%s,submittedOn=%s WHERE id=%s",(json.dumps(details),tabSwitchCount,webcamCount,json.dumps(images),submittedOn,reportId))
+                dbInfo.createCourseTable()
+                db_cursor.execute("DELETE FROM courses WHERE id=%s",(courseId,))
                 db.commit()
+               
                 return jsonify({
-                    "message":"Test Submitted Successfully",
+                    "message":"Question Removed Successfully",
                     "status":True
                 })
                 return jsonify(responseJson)

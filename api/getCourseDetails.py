@@ -40,6 +40,23 @@ def getCourseDetails():
                     else:
                         totalNoOfQuestion=0
                     
+                    report_tb_name=str(res[0])+"_test_report"
+                    dbInfo.createTestReportTable(report_tb_name)
+                    username=session['username']
+                    
+
+                    db_cursor.execute("SELECT id,startedOn,submittedOn FROM "+report_tb_name+" WHERE submittedBy=%s AND submittedOn IS NULL  ORDER BY id DESC LIMIT 1",(username,))
+                    report_result=db_cursor.fetchall()
+                    if(db_cursor.rowcount==0):
+                        reportId,startedOn,submittedOn='','',''
+                    else:
+                        for r_res in report_result:
+                            reportId=r_res[0]
+                            startedOn=r_res[1]
+                            submittedOn=r_res[2]
+                            
+
+                    
                     if  (res[2]==1):
                         mode="private"
                     else:
@@ -65,12 +82,18 @@ def getCourseDetails():
                             "startTime":res[8],
                             "endTime":res[9],
                             "users":users,
+                            "tabSwitch":res[7],
+                            "webcamLimit":res[6],
                             "createdBy":res[11],
-                            "createdOn":res[12]
+                            "createdOn":res[12],
+                            "reportId":reportId,
+                            "startedOn":startedOn,
+                            "submittedOn":submittedOn
                         }
                     )
                 return jsonify(responseJson)
             except Exception as e:
+                print(e)
                 return {
                     "message":str(e),
                     "status":False

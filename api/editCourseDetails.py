@@ -7,14 +7,14 @@ import json
 from passlib.hash import sha256_crypt   
 from datetime import datetime as dt
 
-addCourseDetailsBlueprint = Blueprint('addCourseDetailsBlueprint',__name__)
+editCourseDetailsBlueprint = Blueprint('editCourseDetailsBlueprint',__name__)
 
 dbInfo = DataBase()
 
 # Route for register user details
-@addCourseDetailsBlueprint.route('/course/addDetails',methods=['POST'])
+@editCourseDetailsBlueprint.route('/course/editDetails',methods=['POST'])
 @jwt_required()
-def addCourseDetails():
+def editCourseDetails():
     # Checking for Request Method
     if request.method=='POST':
         if 'cookie' in session:
@@ -31,8 +31,11 @@ def addCourseDetails():
                 }
             try:
                 dbInfo.createCourseTable()
-                courseName=data["courseName"]
+                courseId=data["courseId"]
                 mode=data["mode"]
+                lastUpdated=dt.utcnow()
+                lastUpdated=lastUpdated.isoformat("T")
+                lastUpdated=lastUpdated[0:23] + "Z"
                 if mode=="private":
                     mode=1
                     startTime=data["startTime"]
@@ -46,20 +49,17 @@ def addCourseDetails():
                         webcam=1
                     webcamLimit=data["webcamLimit"]
                     users=data["users"]
-                    createdBy=session['username']
-                    createdOn=dt.utcnow()
-                    createdOn=createdOn.isoformat("T")
-                    createdOn=createdOn[0:23] + "Z"
-                    db_cursor.execute("INSERT INTO courses (name,mode,duration,noOfQuestion,webcam,webcamLimit,tabSwitchLimit,startTime,endTime,users,createdBy,createdOn) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(courseName,mode,duration,noOfQuestion,webcam,webcamLimit,tabSwitchLimit,startTime,endTime,json.dumps(users),createdBy,createdOn))
+                
+                    
+                    db_cursor.execute("UPDATE courses SET mode=%s,duration=%s,noOfQuestion=%s,webcam=%s,webcamLimit=%s,tabSwitchLimit=%s,startTime=%s,endTime=%s,users=%s,lastUpdated=%s WHERE id=%s",(mode,duration,noOfQuestion,webcam,webcamLimit,tabSwitchLimit,startTime,endTime,json.dumps(users),lastUpdated,courseId))
                     db.commit()
                 else:
                     mode=0
-                    createdBy=session['username']
-                    createdOn=dt.utcnow()
-                    db_cursor.execute("INSERT INTO courses (name,mode,createdBy,createdOn) VALUES (%s,%s,%s,%s)",(courseName,mode,createdBy,createdOn))
+                    
+                    db_cursor.execute("UPDATE courses SET mode=%s,lastUpdated=%s,duration='',noOfQuestion='',webcam='',webcamLimit='',tabSwitchLimit='',startTime='',endTime='',users='' WHERE id=%s",(mode,lastUpdated,courseId))
                     db.commit()
                 return jsonify({
-                    "message":"Course Added Successfully",
+                    "message":"Course Modified Successfully",
                     "status":True
                 })
                 return jsonify(responseJson)
