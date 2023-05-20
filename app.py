@@ -31,6 +31,9 @@ from api.startTestDetails import startTestDetailsBlueprint
 from api.submitTestDetails import submitTestDetailsBlueprint
 from api.checkFace import checkFaceBlueprint
 from api.getUserDetails import getUserDetailsBlueprint
+from api.getAllTestReportDetails import getAllTestReportDetailsBlueprint
+from api.getTestReportDetails import getTestReportDetailsBlueprint
+
 
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = "EBNcri5PYrn7H5j"
@@ -62,6 +65,8 @@ app.register_blueprint(deleteQuestionDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(startTestDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(checkFaceBlueprint,url_prefix=startURL)
 app.register_blueprint(getUserDetailsBlueprint,url_prefix=startURL)
+app.register_blueprint(getAllTestReportDetailsBlueprint,url_prefix=startURL)
+app.register_blueprint(getTestReportDetailsBlueprint,url_prefix=startURL)
 
 
 @jwt.token_in_blocklist_loader
