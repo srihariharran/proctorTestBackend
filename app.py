@@ -32,7 +32,9 @@ from api.submitTestDetails import submitTestDetailsBlueprint
 from api.checkFace import checkFaceBlueprint
 from api.getUserDetails import getUserDetailsBlueprint
 from api.getAllTestReportDetails import getAllTestReportDetailsBlueprint
+from api.getContributeReportDetails import getContributeReportDetailsBlueprint
 from api.getTestReportDetails import getTestReportDetailsBlueprint
+from api.getReportDetails import getReportDetailsBlueprint
 
 
 app = Flask(__name__)
@@ -66,7 +68,9 @@ app.register_blueprint(startTestDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(checkFaceBlueprint,url_prefix=startURL)
 app.register_blueprint(getUserDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(getAllTestReportDetailsBlueprint,url_prefix=startURL)
+app.register_blueprint(getContributeReportDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(getTestReportDetailsBlueprint,url_prefix=startURL)
+app.register_blueprint(getReportDetailsBlueprint,url_prefix=startURL)
 
 
 @jwt.token_in_blocklist_loader

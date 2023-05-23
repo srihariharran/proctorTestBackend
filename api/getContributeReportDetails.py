@@ -6,14 +6,14 @@ import mysql.connector
 import json
 from passlib.hash import sha256_crypt   
 
-getAllTestReportDetailsBlueprint = Blueprint('getAllTestReportDetailsBlueprint',__name__)
+getContributeReportDetailsBlueprint = Blueprint('getContributeReportDetailsBlueprint',__name__)
 
 dbInfo = DataBase()
 
 # Route for register user details
-@getAllTestReportDetailsBlueprint.route('/test/report/all/getDetails',methods=['POST'])
+@getContributeReportDetailsBlueprint.route('/contribute/report/getDetails',methods=['POST'])
 @jwt_required()
-def getAllTestReportDetails():
+def getContributeReportDetails():
     # Checking for Request Method
     if request.method=='POST':
         if 'cookie' in session:
@@ -32,10 +32,11 @@ def getAllTestReportDetails():
                 tb_name=str(courseId)+"_test_report"
                 dbInfo.createQuestionTable(tb_name)
                 username=session['username']
-                db_cursor.execute("SELECT * FROM "+tb_name+" WHERE submittedBy=%s AND startedOn IS NOT NULL AND submittedOn IS NOT NULL  ORDER BY id DESC",(username,))
+                
+                db_cursor.execute("SELECT * FROM "+tb_name+" LEFT JOIN user ON "+tb_name+".submittedBy=user.username WHERE "+tb_name+".startedOn IS NOT NULL AND "+tb_name+".submittedOn IS NOT NULL  ORDER BY "+tb_name+".id DESC")
                 result=db_cursor.fetchall()
                 responseJson=[]
-                
+                print(result)
                 question_tb_name=str(courseId)+"_questions"
                 for res in result:
                     score=0
@@ -62,7 +63,9 @@ def getAllTestReportDetails():
                             "reportId":res[0],
                             "startedOn":res[7],
                             "submittedOn":res[8],
-                            "score":score
+                            "score":score,
+                            "name":res[11],
+                            "email":res[9]
                         }
                     )
                 return jsonify(responseJson)

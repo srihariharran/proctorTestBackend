@@ -44,9 +44,15 @@ def getCourseDetails():
                     dbInfo.createTestReportTable(report_tb_name)
                     username=session['username']
                     
-
-                    db_cursor.execute("SELECT id,startedOn,submittedOn FROM "+report_tb_name+" WHERE submittedBy=%s AND submittedOn IS NULL  ORDER BY id DESC LIMIT 1",(username,))
+                    db_cursor.execute("SELECT count(id) FROM "+report_tb_name+" group by submittedBy")
+                    report_count_data=db_cursor.fetchall()
+                    report_count=0
+                    for report_c_res in report_count_data:
+                        # print(report_c_res[0])
+                        report_count=report_c_res
+                    db_cursor.execute("SELECT id,startedOn,submittedOn FROM "+report_tb_name+" WHERE submittedBy=%s  ORDER BY id DESC LIMIT 1",(username,))
                     report_result=db_cursor.fetchall()
+                    print(report_result)
                     if(db_cursor.rowcount==0):
                         reportId,startedOn,submittedOn='','',''
                     else:
@@ -88,7 +94,8 @@ def getCourseDetails():
                             "createdOn":res[12],
                             "reportId":reportId,
                             "startedOn":startedOn,
-                            "submittedOn":submittedOn
+                            "submittedOn":submittedOn,
+                            "testTaken":report_count
                         }
                     )
                 return jsonify(responseJson)
