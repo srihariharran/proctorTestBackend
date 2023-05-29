@@ -13,6 +13,7 @@ import cv2
 
 # Importing Routes Pages
 from api.registerUser import registerUserBlueprint
+from api.updateUser import updateUserBlueprint
 from api.checkMobileNoExists import checkMobileNoExistsBlueprint
 from api.checkUsernameExists import checkUsernameExistsBlueprint
 from api.login import loginBlueprint
@@ -31,6 +32,7 @@ from api.startTestDetails import startTestDetailsBlueprint
 from api.submitTestDetails import submitTestDetailsBlueprint
 from api.checkFace import checkFaceBlueprint
 from api.getUserDetails import getUserDetailsBlueprint
+from api.getUserAllDetails import getUserAllDetailsBlueprint
 from api.getAllTestReportDetails import getAllTestReportDetailsBlueprint
 from api.getContributeReportDetails import getContributeReportDetailsBlueprint
 from api.getTestReportDetails import getTestReportDetailsBlueprint
@@ -50,6 +52,7 @@ dbInfo = DataBase()
 startURL="/api"
 
 app.register_blueprint(registerUserBlueprint,url_prefix=startURL)
+app.register_blueprint(updateUserBlueprint,url_prefix=startURL)
 app.register_blueprint(checkMobileNoExistsBlueprint,url_prefix=startURL)
 app.register_blueprint(checkUsernameExistsBlueprint,url_prefix=startURL)
 app.register_blueprint(loginBlueprint,url_prefix=startURL)
@@ -67,6 +70,7 @@ app.register_blueprint(deleteQuestionDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(startTestDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(checkFaceBlueprint,url_prefix=startURL)
 app.register_blueprint(getUserDetailsBlueprint,url_prefix=startURL)
+app.register_blueprint(getUserAllDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(getAllTestReportDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(getContributeReportDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(getTestReportDetailsBlueprint,url_prefix=startURL)

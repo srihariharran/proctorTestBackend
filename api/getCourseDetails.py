@@ -32,6 +32,8 @@ def getCourseDetails():
                 result=db_cursor.fetchall()
                 responseJson=[]
                 for res in result:
+                    duration=res[3]
+                    noOfQuestion=res[4]
                     question_tb_name=str(res[0])+"_questions"
                     tbDetail=dbInfo.checkQuestionTableExists(question_tb_name)
                     if((tbDetail['status'])):
@@ -48,11 +50,10 @@ def getCourseDetails():
                     report_count_data=db_cursor.fetchall()
                     report_count=0
                     for report_c_res in report_count_data:
-                        # print(report_c_res[0])
                         report_count=report_c_res
-                    db_cursor.execute("SELECT id,startedOn,submittedOn FROM "+report_tb_name+" WHERE submittedBy=%s  ORDER BY id DESC LIMIT 1",(username,))
+                    db_cursor.execute("SELECT id,startedOn,submittedOn,testDetails FROM "+report_tb_name+" WHERE submittedBy=%s  ORDER BY id DESC LIMIT 1",(username,))
                     report_result=db_cursor.fetchall()
-                    print(report_result)
+                    
                     if(db_cursor.rowcount==0):
                         reportId,startedOn,submittedOn='','',''
                     else:
@@ -60,6 +61,11 @@ def getCourseDetails():
                             reportId=r_res[0]
                             startedOn=r_res[1]
                             submittedOn=r_res[2]
+                            
+                            if startedOn!=None and submittedOn==None:
+                                details=json.loads(r_res[3].decode('utf8'))
+                                duration=details["duration"]
+                                noOfQuestion=details["noOfQuestion"]
                             
 
                     
@@ -76,13 +82,14 @@ def getCourseDetails():
                         users="None"
                     else:
                         users=json.loads(res[10].decode('utf8'))
+                   
                     responseJson.append(
                         {
                             "courseId":res[0],
                             "courseName":res[1],
                             "mode":mode,
-                            "duration":res[3],
-                            "noOfQuestion":res[4],
+                            "duration":duration,
+                            "noOfQuestion":noOfQuestion,
                             "totalNoOfQuestion":totalNoOfQuestion,
                             "webcam":webcam,
                             "startTime":res[8],

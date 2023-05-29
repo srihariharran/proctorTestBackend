@@ -1,0 +1,63 @@
+from flask import Flask, request, jsonify, session
+from flask import Blueprint
+from db import DataBase
+import json
+import mysql.connector
+from passlib.hash import sha256_crypt   
+
+updateUserBlueprint = Blueprint('updateUserBlueprint',__name__)
+
+dbInfo = DataBase()
+
+# Route for update user details
+@updateUserBlueprint.route('/update/user',methods=['POST'])
+def updateUser():
+    # Checking for Request Method
+    if request.method=='POST':
+        if 'cookie' in session:
+            data=request.get_json()
+            username=data['username']
+            
+            name=data['name']
+            organisation=data['organisation']
+            designation=data['designation']
+            mobile=data['mobile']
+            try:
+                dbInfo.createDatabase()
+                db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
+                db_cursor = db.cursor()
+
+            except Exception as e:
+                return {
+                    "message":str(e),
+                    "status":False
+                }
+            try:
+                dbInfo.createUserTable()
+                if data["password"]=="password":
+                    db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s WHERE username=%s",(name,organisation,designation,mobile,username))
+                    db.commit()
+                else:
+                    password=sha256_crypt.hash(data['password'])
+                    db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,password=%s WHERE username=%s",(name,organisation,designation,mobile,password,username))
+                    db.commit()
+                return jsonify({
+                    "message":"Profile Updated Successfully",
+                    "status":True
+                })
+                
+            except Exception as e:
+                return {
+                    "message":str(e),
+                    "status":False
+                }
+        else:
+            return jsonify({
+                "message":"Access Denied",
+                "status":False
+            })
+    else:
+        return jsonify({
+            "message":"Error! Invalid Method",
+            "status":False
+        })
