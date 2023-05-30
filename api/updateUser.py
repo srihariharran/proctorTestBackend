@@ -22,6 +22,11 @@ def updateUser():
             organisation=data['organisation']
             designation=data['designation']
             mobile=data['mobile']
+            twoFactorAuth=data['twoFactorAuth']
+            if twoFactorAuth:
+                twoFactorAuth=1
+            else:
+                twoFactorAuth=0
             try:
                 dbInfo.createDatabase()
                 db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
@@ -35,11 +40,11 @@ def updateUser():
             try:
                 dbInfo.createUserTable()
                 if data["password"]=="password":
-                    db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s WHERE username=%s",(name,organisation,designation,mobile,username))
+                    db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,twoFactorAuth=%s WHERE username=%s",(name,organisation,designation,mobile,twoFactorAuth,username))
                     db.commit()
                 else:
                     password=sha256_crypt.hash(data['password'])
-                    db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,password=%s WHERE username=%s",(name,organisation,designation,mobile,password,username))
+                    db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,password=%s,twoFactorAuth=%s WHERE username=%s",(name,organisation,designation,mobile,password,twoFactorAuth,username))
                     db.commit()
                 return jsonify({
                     "message":"Profile Updated Successfully",

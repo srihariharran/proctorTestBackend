@@ -41,16 +41,47 @@ def login():
                         if sha256_crypt.verify(password,res[1]):
                             session["name"]=res[2]
                             session["username"]=res[0]
-                            token = create_access_token(identity=username)
-                            return jsonify({
-                                "details":{
-                                    "token":str(token),
-                                    "name":str(res[2]),
-                                    "username":str(res[0]),
-                                },
-                                "message":"User Login Successfull",
-                                "status":True
-                            })
+                            if res[8]==1:
+                                otp=dbInfo.generate_otp()
+                                print(otp)
+                                if 'forgotOtpStatus' in session:
+                                    session.pop('forgotOtpStatus')
+                                session['loginOtpStatus']=True
+                                session['loginOtp']=sha256_crypt.hash(otp)
+                                masked_email=res[0].split("@")
+                                message="""
+                                    <h3>Proctor Test</h3>
+                                    <h5><b>One Time Password for Login</b></h5>
+                                    <br/>
+                                    Please use the following OTP for the proctor test account
+                                    <br/>
+                                    <br/>
+                                    One Time Password: <b>"""+otp+"""</b>
+                                    <br/>
+                                    <br/>
+                                    Thanks,
+                                    <br/>
+                                    Proctor Test
+                                """
+                                # dbInfo.send_mail(message,[username],"One Time Password")
+                                return jsonify({
+                                    "message":"OTP send to your email",
+                                    "status":True,
+                                    "otpStatus":True,
+                                    "otpMaskedEmail":masked_email[0][:2]+'*'*(len(masked_email[0])-3)+masked_email[0][-2:]+'@'+masked_email[1]
+                                })
+                            else:
+                                token = create_access_token(identity=username)
+                                return jsonify({
+                                    "details":{
+                                        "token":str(token),
+                                        "name":str(res[2]),
+                                        "username":str(res[0]),
+                                    },
+                                    "message":"User Login Successfull",
+                                    "status":True,
+                                    "otpStatus":False
+                                })
                         else:
                             return jsonify({
                                 "message":"Invalid Password",

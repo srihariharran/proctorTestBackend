@@ -17,6 +17,10 @@ from api.updateUser import updateUserBlueprint
 from api.checkMobileNoExists import checkMobileNoExistsBlueprint
 from api.checkUsernameExists import checkUsernameExistsBlueprint
 from api.login import loginBlueprint
+from api.twoFactorAuthentication import twoFactorAuthBlueprint
+from api.forgotPassword import forgotPasswordBlueprint
+from api.resetPassword import resetPasswordBlueprint
+from api.resendOtp import resendOTPBlueprint
 from api.logout import logoutBlueprint
 from api.getCourseDetails import getCourseDetailsBlueprint
 from api.getQuestionDetails import getQuestionDetailsBlueprint
@@ -56,6 +60,10 @@ app.register_blueprint(updateUserBlueprint,url_prefix=startURL)
 app.register_blueprint(checkMobileNoExistsBlueprint,url_prefix=startURL)
 app.register_blueprint(checkUsernameExistsBlueprint,url_prefix=startURL)
 app.register_blueprint(loginBlueprint,url_prefix=startURL)
+app.register_blueprint(twoFactorAuthBlueprint,url_prefix=startURL)
+app.register_blueprint(forgotPasswordBlueprint,url_prefix=startURL)
+app.register_blueprint(resetPasswordBlueprint,url_prefix=startURL)
+app.register_blueprint(resendOTPBlueprint,url_prefix=startURL)
 app.register_blueprint(logoutBlueprint,url_prefix=startURL)
 app.register_blueprint(getCourseDetailsBlueprint,url_prefix=startURL)
 app.register_blueprint(getQuestionDetailsBlueprint,url_prefix=startURL)

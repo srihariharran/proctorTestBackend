@@ -35,6 +35,11 @@ def getUserAllDetails():
                 result=db_cursor.fetchall()
                 responseJson={}
                 for res in result:
+                    if res[8]==1:
+                        twoFactorAuth=True
+                    else:
+                        twoFactorAuth=False
+                        
                     responseJson.update(
                         {
                             "username":res[0],
@@ -42,7 +47,8 @@ def getUserAllDetails():
                             "organisation":res[3],
                             "designation":res[4],
                             "mobile":res[5],
-                            "password":"password"
+                            "password":"password",
+                            "twoFactorAuth":twoFactorAuth
                             
                         }
                     )

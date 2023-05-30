@@ -1,5 +1,9 @@
 import mysql.connector
 import json
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
+import math, random 
 
 class DataBase:
     def __init__(self): 
@@ -110,7 +114,7 @@ class DataBase:
         try:
             tbDetail=self.checkUserTableExists()
             if(not (tbDetail['status'])):
-                db_cursor.execute("CREATE TABLE user (username varchar(50) NOT NULL,password TEXT NOT NULL,name varchar(30) NOT NULL,organisation TEXT NOT NULL,designation varchar(100) NOT NULL,mobile varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL, PRIMARY KEY (username),UNIQUE (mobile)) ")
+                db_cursor.execute("CREATE TABLE user (username varchar(50) NOT NULL,password TEXT NOT NULL,name varchar(30) NOT NULL,organisation TEXT NOT NULL,designation varchar(100) NOT NULL,mobile varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL,twoFactorAuth int DEFAULT 0, PRIMARY KEY (username),UNIQUE (mobile)) ")
                 db.commit()
                 db_cursor.close()
                 return {
@@ -306,4 +310,28 @@ class DataBase:
                 "message":str(e),
                 "status":False
             }
+
+    def send_mail(self,message_to_send,to_addr,subject):
+        msg = MIMEMultipart()
+        msg["From"] = "maasipanguni@outlook.com"
+        msg["To"] = ", ".join(to_addr)
+        msg['Subject'] = subject
+        body_text = message_to_send
+        body_part = MIMEText(body_text, 'html')
+        msg.attach(body_part)
+        with smtplib.SMTP(host="smtp.outlook.com", port=587) as smtp_obj:  # ENVIAR DESDE UN DOMINIO PERSONALIZADO.
+            smtp_obj.ehlo()
+            smtp_obj.starttls()
+            smtp_obj.ehlo()
+            smtp_obj.login("maasipanguni@outlook.com", "ASDFasdf!@#$1234")
+            smtp_obj.sendmail(msg['From'], [msg['To'],], msg.as_string())
+
+
+    def generate_otp(self):
+        digits = "0123456789"
+        OTP = ""
+        for i in range(6):
+            OTP += digits[math.floor(random.random() * 10)]
+        return OTP
+	
 
