@@ -12,18 +12,11 @@ class DataBase:
         self.mysql_user="root"
         self.mysql_password=""
         self.database="proctorTest"
-        # self.redis_host="red-chtfttndvk4olirds060"
-        # self.redis_port=6379
-        # self.redis_password="lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz"
-        self.redis_url="rediss://red-chtfttndvk4olirds060:lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz@oregon-redis.render.com:6379"
-        # self.mysql_host='sql12.freemysqlhosting.net'
-        # self.mysql_user="sql12623111"
-        # self.mysql_password="8uCUBqpxA4"
-        # self.database="sql12623111"
-        self.redis_host="red-chtfttndvk4olirds060"
+        self.redis_host="localhost"
         self.redis_port=6379
         self.redis_password="lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz"
-        # self.redis_url="redis://red-chtfttndvk4olirds060:6379"        
+        self.redis_url="rediss://localhost:6379"
+          
 
     # Check Database Exists
     def checkDatabaseExists(self):
@@ -337,17 +330,17 @@ class DataBase:
 
     def send_mail(self,message_to_send,to_addr,subject):
         msg = MIMEMultipart()
-        msg["From"] = "maasipanguni@outlook.com"
+        msg["From"] = "from"
         msg["To"] = ", ".join(to_addr)
         msg['Subject'] = subject
         body_text = message_to_send
         body_part = MIMEText(body_text, 'html')
         msg.attach(body_part)
-        with smtplib.SMTP(host="smtp.outlook.com", port=587) as smtp_obj:  # ENVIAR DESDE UN DOMINIO PERSONALIZADO.
+        with smtplib.SMTP(host="smtp.server.com", port=587) as smtp_obj:  # ENVIAR DESDE UN DOMINIO PERSONALIZADO.
             smtp_obj.ehlo()
             smtp_obj.starttls()
             smtp_obj.ehlo()
-            smtp_obj.login("maasipanguni@outlook.com", "ASDFasdf!@#$1234")
+            smtp_obj.login("username", "password")
             smtp_obj.sendmail(msg['From'], [msg['To'],], msg.as_string())
 
 
