@@ -44,9 +44,9 @@ from api.getReportDetails import getReportDetailsBlueprint
 
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "EBNcri5PYrn7H5j"
+app.config["JWT_SECRET_KEY"] = "key"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-app.secret_key="abc"
+app.secret_key="key"
 jwt = JWTManager(app)
 CORS(app,supports_credentials=True)
 
