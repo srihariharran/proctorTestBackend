@@ -16,55 +16,49 @@ dbInfo = DataBase()
 def getUserAllDetails():
     # Checking for Request Method
     if request.method=='POST':
-        if 'cookie' in session:
-            data=request.get_json()
-            try:
-                dbInfo.createDatabase()
-                db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
-                db_cursor = db.cursor()
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-            try:
-                dbInfo.createUserTable()
-                username=data["username"]
-                
-                db_cursor.execute("SELECT * FROM user WHERE username=%s",(username,))
-                result=db_cursor.fetchall()
-                responseJson={}
-                for res in result:
-                    if res[8]==1:
-                        twoFactorAuth=True
-                    else:
-                        twoFactorAuth=False
-                        
-                    responseJson.update(
-                        {
-                            "username":res[0],
-                            "name":res[2],
-                            "organisation":res[3],
-                            "designation":res[4],
-                            "mobile":res[5],
-                            "password":"password",
-                            "twoFactorAuth":twoFactorAuth
-                            
-                        }
-                    )
-                
-                return jsonify(responseJson)
-            except Exception as e:
-                print(e)
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-        else:
-            return jsonify({
-                "message":"Access Denied",
+        data=request.get_json()
+        try:
+            dbInfo.createDatabase()
+            db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
+            db_cursor = db.cursor()
+        except Exception as e:
+            return {
+                "message":str(e),
                 "status":False
-            })
+            }
+        try:
+            dbInfo.createUserTable()
+            username=data["username"]
+            
+            db_cursor.execute("SELECT * FROM user WHERE username=%s",(username,))
+            result=db_cursor.fetchall()
+            responseJson={}
+            for res in result:
+                if res[8]==1:
+                    twoFactorAuth=True
+                else:
+                    twoFactorAuth=False
+                    
+                responseJson.update(
+                    {
+                        "username":res[0],
+                        "name":res[2],
+                        "organisation":res[3],
+                        "designation":res[4],
+                        "mobile":res[5],
+                        "password":"",
+                        "twoFactorAuth":twoFactorAuth
+                        
+                    }
+                )
+            
+            return jsonify(responseJson)
+        except Exception as e:
+            # print(e)
+            return {
+                "message":str(e),
+                "status":False
+            }
     else:
         return jsonify({
             "message":"Error! Invalid Method",

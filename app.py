@@ -88,28 +88,35 @@ app.register_blueprint(getReportDetailsBlueprint,url_prefix=startURL)
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     jti = jwt_payload["jti"]
+    # redis_cli=redis.from_url(dbInfo.redis_url)
+    # redis_details=redis_cli.get("logoutUsers")
     if "accessToken" in session:
         token = session["accessToken"]
         session.pop("accessToken")
         return token is not None
 
+
+
+
 @app.after_request
 def refresh_expiring_jwts(response):
     try:
         exp_timestamp = get_jwt()["exp"]
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
         if target_timestamp > exp_timestamp:
             access_token = create_access_token(identity=get_jwt_identity())
             data = response.get_json()
             if type(data) is dict:
-                data["token"] = access_token 
+                data["access_token"] = access_token 
                 response.data = json.dumps(data)
         return response
     except (RuntimeError, KeyError):
-        
         # Case where there is not a valid JWT. Just return the original respone
         return response
+
+
+
 
 
 @app.route('/connect',methods=['POST'])
@@ -122,6 +129,7 @@ def connect():
         temp = random.sample(all,10)
         cookie = "".join(temp)
         session["cookie"]=hashlib.md5(cookie.encode('utf-8')).hexdigest()
+        print(session["cookie"])
         return jsonify({
             "message":"Connected",
             "status":True

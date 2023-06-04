@@ -16,52 +16,49 @@ dbInfo = DataBase()
 def getQuestionDetails():
     # Checking for Request Method
     if request.method=='POST':
-        if 'cookie' in session:
-            data=request.get_json()
-            try:
-                dbInfo.createDatabase()
-                db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
-                db_cursor = db.cursor()
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-            try:
-                courseId=data["courseId"]
-                tb_name=str(courseId)+"_questions"
-                dbInfo.createQuestionTable(tb_name)
-                db_cursor.execute("SELECT * FROM "+tb_name)
-                result=db_cursor.fetchall()
-                responseJson=[]
-                for res in result:
-                    if str(res[2])=="None":
-                        options="None"
-                    else:
-                        options=json.loads(res[2].decode('utf8'))
-                    responseJson.append(
-                        {
-                            "courseId":courseId,
-                            "questionId":res[0],
-                            "question":res[1],
-                            "options":options,
-                            "correctAnswer":res[3],
-                            "createdBy":res[4],
-                            "createdOn":res[5],
-                            "lastUpdated":res[6]
-                        }
-                    )
-                return jsonify(responseJson)
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-        else:
-            return jsonify({
-                "message":"Access Denied",
+        
+        data=request.get_json()
+        try:
+            dbInfo.createDatabase()
+            db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
+            db_cursor = db.cursor()
+        except Exception as e:
+            return {
+                "message":str(e),
                 "status":False
-            })
+            }
+        try:
+            courseId=data["courseId"]
+            tb_name=str(courseId)+"_questions"
+            dbInfo.createQuestionTable(tb_name)
+            db_cursor.execute("SELECT * FROM "+tb_name)
+            result=db_cursor.fetchall()
+            responseJson=[]
+            for res in result:
+                # print(type(res[2]))
+                if str(res[2])=="None":
+                    options="None"
+                else:
+                    options=json.loads(res[2])   
+                responseJson.append(
+                    {
+                        "courseId":courseId,
+                        "questionId":res[0],
+                        "question":res[1],
+                        "options":options,
+                        "correctAnswer":res[3],
+                        "createdBy":res[4],
+                        "createdOn":res[5],
+                        "lastUpdated":res[6]
+                    }
+                )
+            return jsonify(responseJson)
+        except Exception as e:
+            return {
+                "message":str(e),
+                "status":False
+            }
+       
     else:
         return jsonify({
             "message":"Error! Invalid Method",

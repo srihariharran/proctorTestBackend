@@ -17,49 +17,45 @@ dbInfo = DataBase()
 def editQuestionDetails():
     # Checking for Request Method
     if request.method=='POST':
-        if 'cookie' in session:
-            data = request.get_json()
-            try:
-                dbInfo.createDatabase()
-                db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
-                db_cursor = db.cursor()
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-            try:
-                courseId=data["courseId"]
-                tb_name=str(courseId)+"_questions"
-                dbInfo.createQuestionTable(tb_name)
-                questionId=data["questionId"]
-                question=data["question"]
-                correctAnswer=data["correctAnswer"]
-                lastUpdated=dt.utcnow()
-                lastUpdated=lastUpdated.isoformat("T")
-                lastUpdated=lastUpdated[0:23] + "Z"
-                options=[]
-                for res in data:
-                    if "option" in res:
-                        options.append(data[res])
-                db_cursor.execute("UPDATE "+tb_name+" SET options=%s,correctAnswer=%s,lastUpdated=%s WHERE id=%s",(json.dumps(options),correctAnswer,lastUpdated,questionId))
-                db.commit()
-               
-                return jsonify({
-                    "message":"Question Modified Successfully",
-                    "status":True
-                })
-                return jsonify(responseJson)
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-        else:
-            return jsonify({
-                "message":"Access Denied",
+        
+        data = request.get_json()
+        try:
+            dbInfo.createDatabase()
+            db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
+            db_cursor = db.cursor()
+        except Exception as e:
+            return {
+                "message":str(e),
                 "status":False
+            }
+        try:
+            courseId=data["courseId"]
+            tb_name=str(courseId)+"_questions"
+            dbInfo.createQuestionTable(tb_name)
+            questionId=data["questionId"]
+            question=data["question"]
+            correctAnswer=data["correctAnswer"]
+            lastUpdated=dt.utcnow()
+            lastUpdated=lastUpdated.isoformat("T")
+            lastUpdated=lastUpdated[0:23] + "Z"
+            options=[]
+            for res in data:
+                if "option" in res:
+                    options.append(data[res])
+            db_cursor.execute("UPDATE "+tb_name+" SET options=%s,correctAnswer=%s,lastUpdated=%s WHERE id=%s",(json.dumps(options),correctAnswer,lastUpdated,questionId))
+            db.commit()
+            
+            return jsonify({
+                "message":"Question Modified Successfully",
+                "status":True
             })
+            return jsonify(responseJson)
+        except Exception as e:
+            return {
+                "message":str(e),
+                "status":False
+            }
+      
     else:
         return jsonify({
             "message":"Error! Invalid Method",

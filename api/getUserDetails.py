@@ -16,43 +16,39 @@ dbInfo = DataBase()
 def getUserDetails():
     # Checking for Request Method
     if request.method=='POST':
-        if 'cookie' in session:
-            try:
-                dbInfo.createDatabase()
-                db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
-                db_cursor = db.cursor()
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-            try:
-                dbInfo.createUserTable()
-                username=session["username"]
-                db_cursor.execute("SELECT * FROM user WHERE username!=%s",(username,))
-                result=db_cursor.fetchall()
-                responseJson=[]
-                for res in result:
-                    responseJson.append(
-                        {
-                            "username":res[0],
-                            "name":res[2],
-                            
-                        }
-                    )
-                print(responseJson)
-                return jsonify(responseJson)
-            except Exception as e:
-                print(e)
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-        else:
-            return jsonify({
-                "message":"Access Denied",
+        
+        try:
+            dbInfo.createDatabase()
+            db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
+            db_cursor = db.cursor()
+        except Exception as e:
+            return {
+                "message":str(e),
                 "status":False
-            })
+            }
+        try:
+            dbInfo.createUserTable()
+            username=get_jwt_identity()
+            db_cursor.execute("SELECT * FROM user WHERE username!=%s",(username,))
+            result=db_cursor.fetchall()
+            responseJson=[]
+            for res in result:
+                responseJson.append(
+                    {
+                        "username":res[0],
+                        "name":res[2],
+                        
+                    }
+                )
+            # print(responseJson)
+            return jsonify(responseJson)
+        except Exception as e:
+            # print(e)
+            return {
+                "message":str(e),
+                "status":False
+            }
+        
     else:
         return jsonify({
             "message":"Error! Invalid Method",

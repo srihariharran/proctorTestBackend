@@ -4,6 +4,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
 import math, random 
+import redis
 
 class DataBase:
     def __init__(self): 
@@ -11,6 +12,18 @@ class DataBase:
         self.mysql_user="root"
         self.mysql_password=""
         self.database="proctorTest"
+        # self.redis_host="red-chtfttndvk4olirds060"
+        # self.redis_port=6379
+        # self.redis_password="lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz"
+        self.redis_url="rediss://red-chtfttndvk4olirds060:lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz@oregon-redis.render.com:6379"
+        # self.mysql_host='sql12.freemysqlhosting.net'
+        # self.mysql_user="sql12623111"
+        # self.mysql_password="8uCUBqpxA4"
+        # self.database="sql12623111"
+        self.redis_host="red-chtfttndvk4olirds060"
+        self.redis_port=6379
+        self.redis_password="lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz"
+        # self.redis_url="redis://red-chtfttndvk4olirds060:6379"        
 
     # Check Database Exists
     def checkDatabaseExists(self):
@@ -23,9 +36,10 @@ class DataBase:
                 "status":False
             }
         try:
-            result=db_cursor.execute("SHOW DATABASES LIKE 'proctorTest'").fetchall()[0][0]
-            db_cursor.close()
-            if result:
+            db_cursor.execute("SHOW DATABASES LIKE '"+self.database+"'")
+            result=db_cursor.fetchall()
+            row=db_cursor.rowcount
+            if row:
                 return {
                 "message":"database exists",
                 "status":True
@@ -80,8 +94,10 @@ class DataBase:
                 "status":False
             }
         try:
-            result=db_cursor.execute("SHOW TABLES LIKE 'user'").fetchall()[0][0]
-            if result:
+            db_cursor.execute("SHOW TABLES LIKE 'user'")
+            result=db_cursor.fetchall()
+            row=db_cursor.rowcount
+            if row:
                 return {
                 "message":"table exists",
                 "status":True
@@ -101,10 +117,7 @@ class DataBase:
     def createUserTable(self):
         try:
             dbDetail=self.checkDatabaseExists()
-            if(not (dbDetail['status'])):
-                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
-                db_cursor = db.cursor()
-            else:
+            if( (dbDetail['status'])):
                 self.createDatabase()
         except Exception as e:
             return {
@@ -114,6 +127,8 @@ class DataBase:
         try:
             tbDetail=self.checkUserTableExists()
             if(not (tbDetail['status'])):
+                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
+                db_cursor = db.cursor()
                 db_cursor.execute("CREATE TABLE user (username varchar(50) NOT NULL,password TEXT NOT NULL,name varchar(30) NOT NULL,organisation TEXT NOT NULL,designation varchar(100) NOT NULL,mobile varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL,twoFactorAuth int DEFAULT 0, PRIMARY KEY (username),UNIQUE (mobile)) ")
                 db.commit()
                 db_cursor.close()
@@ -140,18 +155,24 @@ class DataBase:
                 "status":False
             }
         try:
-            result=db_cursor.execute("SHOW TABLES LIKE 'courses'").fetchall()[0][0]
-            if result:
+            db_cursor.execute("SHOW TABLES LIKE 'courses'")
+            result=db_cursor.fetchall()
+            row=db_cursor.rowcount
+            # print(row)
+            if row:
+                
                 return {
                 "message":"table exists",
                 "status":True
             }
             else:
+                
                 return {
                     "message":"table not exists",
                     "status":False
                 }
         except Exception as e:
+            # print(e)
             return {
                 "message":str(e),
                 "status":False
@@ -159,30 +180,33 @@ class DataBase:
 
     # Create Course Table
     def createCourseTable(self):
+        # print("create")
         try:
             dbDetail=self.checkDatabaseExists()
-            if(not (dbDetail['status'])):
-                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
-                db_cursor = db.cursor()
-            else:
+            if((dbDetail['status'])):
                 self.createDatabase()
         except Exception as e:
+            # print(e)
             return {
                 "message":str(e),
                 "status":False
             }
         try:
             tbDetail=self.checkCourseTableExists()
+            # print(not (tbDetail['status']))
             if(not (tbDetail['status'])):
-                db_cursor.execute("CREATE TABLE courses (id int NOT NULL AUTO_INCREMENT,name TEXT NOT NULL,mode int(10) DEFAULT 0,duration int(10) DEFAULT 30,noOfQuestion int(10) DEFAULT 30,webcam int(10) DEFAULT 0,webcamLimit int(10) DEFAULT 10,tabSwitchLimit int(10) DEFAULT 10,startTime TEXT DEFAULT NULL,endTime TEXT DEFAULT NULL,users json DEFAULT NULL,createdBy varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL, PRIMARY KEY (id),UNIQUE (name)) ")
+                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
+                db_cursor = db.cursor()
+                db_cursor.execute("CREATE TABLE courses (id int NOT NULL AUTO_INCREMENT,name varchar(50) NOT NULL,mode int(10) DEFAULT 0,duration int(10) DEFAULT 30,noOfQuestion int(10) DEFAULT 30,webcam int(10) DEFAULT 0,webcamLimit int(10) DEFAULT 10,tabSwitchLimit int(10) DEFAULT 10,startTime TEXT DEFAULT NULL,endTime TEXT DEFAULT NULL,users TEXT DEFAULT NULL,createdBy varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL, PRIMARY KEY (id),UNIQUE (name))")
                 db.commit()
-                db_cursor.close()
+                
                 return {
                     "message":"table create successfully",
                     "status":True
                 }
 
         except Exception as e:
+            # print(e)
             return {
                 "message":str(e),
                 "status":False
@@ -201,8 +225,9 @@ class DataBase:
             }
         try:
             db_cursor.execute("SHOW TABLES LIKE '"+tb_name+"'")
-            result=db_cursor.fetchall()[0][0]
-            if result:
+            result=db_cursor.fetchall()
+            row=db_cursor.rowcount
+            if row:
                 return {
                 "message":"table exists",
                 "status":True
@@ -222,10 +247,7 @@ class DataBase:
     def createQuestionTable(self,tb_name):
         try:
             dbDetail=self.checkDatabaseExists()
-            if(not (dbDetail['status'])):
-                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
-                db_cursor = db.cursor()
-            else:
+            if((dbDetail['status'])):
                 self.createDatabase()
         except Exception as e:
             return {
@@ -235,7 +257,9 @@ class DataBase:
         try:
             tbDetail=self.checkQuestionTableExists(tb_name)
             if(not (tbDetail['status'])):
-                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,question TEXT NOT NULL,options json DEFAULT NULL,correctAnswer TEXT DEFAULT NULL,createdBy varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL, PRIMARY KEY (id),UNIQUE (question)) ")
+                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
+                db_cursor = db.cursor()
+                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,question TEXT NOT NULL,options TEXT DEFAULT NULL,correctAnswer TEXT DEFAULT NULL,createdBy varchar(50) NOT NULL,createdOn TEXT NOT NULL,lastUpdated TEXT DEFAULT NULL, PRIMARY KEY (id)) ")
                 db.commit()
                 db_cursor.close()
                 return {
@@ -262,8 +286,9 @@ class DataBase:
             }
         try:
             db_cursor.execute("SHOW TABLES LIKE '"+tb_name+"'")
-            result=db_cursor.fetchall()[0][0]
-            if result:
+            result=db_cursor.fetchall()
+            row=db_cursor.rowcount
+            if row:
                 return {
                 "message":"table exists",
                 "status":True
@@ -283,10 +308,7 @@ class DataBase:
     def createTestReportTable(self,tb_name):
         try:
             dbDetail=self.checkDatabaseExists()
-            if(not (dbDetail['status'])):
-                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
-                db_cursor = db.cursor()
-            else:
+            if((dbDetail['status'])):
                 self.createDatabase()
         except Exception as e:
             return {
@@ -296,7 +318,9 @@ class DataBase:
         try:
             tbDetail=self.checkTestReportTableExists(tb_name)
             if(not (tbDetail['status'])):
-                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,questionDetails json DEFAULT NULL,tabSwitchCount int DEFAULT NULL,webcamCount int DEFAULT NULL,doubtImages json DEFAULT NULL,testDetails json DEFAULT NULL,submittedBy varchar(50) DEFAULT NULL,startedOn TEXT DEFAULT NULL,submittedOn TEXT DEFAULT NULL, PRIMARY KEY (id)) ")
+                db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
+                db_cursor = db.cursor()
+                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,questionDetails TEXT DEFAULT NULL,tabSwitchCount int DEFAULT NULL,webcamCount int DEFAULT NULL,doubtImages TEXT DEFAULT NULL,testDetails TEXT DEFAULT NULL,submittedBy varchar(50) DEFAULT NULL,startedOn TEXT DEFAULT NULL,submittedOn TEXT DEFAULT NULL, PRIMARY KEY (id)) ")
                 db.commit()
                 db_cursor.close()
                 return {
@@ -305,7 +329,7 @@ class DataBase:
                 }
 
         except Exception as e:
-            print(e)
+            # print(e)
             return {
                 "message":str(e),
                 "status":False

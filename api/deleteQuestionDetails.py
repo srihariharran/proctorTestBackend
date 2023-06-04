@@ -17,40 +17,36 @@ dbInfo = DataBase()
 def deleteQuestionDetails():
     # Checking for Request Method
     if request.method=='POST':
-        if 'cookie' in session:
-            data = request.get_json()
-            try:
-                dbInfo.createDatabase()
-                db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
-                db_cursor = db.cursor()
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-            try:
-                courseId=data["courseId"]
-                tb_name=str(courseId)+"_questions"
-                dbInfo.createQuestionTable(tb_name)
-                questionId=data["questionId"]
-                db_cursor.execute("DELETE FROM "+tb_name+" WHERE id=%s",(questionId,))
-                db.commit()
-               
-                return jsonify({
-                    "message":"Question Removed Successfully",
-                    "status":True
-                })
-                return jsonify(responseJson)
-            except Exception as e:
-                return {
-                    "message":str(e),
-                    "status":False
-                }
-        else:
-            return jsonify({
-                "message":"Access Denied",
+        
+        data = request.get_json()
+        try:
+            dbInfo.createDatabase()
+            db = mysql.connector.connect(host=dbInfo.mysql_host,user=dbInfo.mysql_user,password=dbInfo.mysql_password,database=dbInfo.database)
+            db_cursor = db.cursor()
+        except Exception as e:
+            return {
+                "message":str(e),
                 "status":False
+            }
+        try:
+            courseId=data["courseId"]
+            tb_name=str(courseId)+"_questions"
+            dbInfo.createQuestionTable(tb_name)
+            questionId=data["questionId"]
+            db_cursor.execute("DELETE FROM "+tb_name+" WHERE id=%s",(questionId,))
+            db.commit()
+            
+            return jsonify({
+                "message":"Question Removed Successfully",
+                "status":True
             })
+            return jsonify(responseJson)
+        except Exception as e:
+            return {
+                "message":str(e),
+                "status":False
+            }
+        
     else:
         return jsonify({
             "message":"Error! Invalid Method",
