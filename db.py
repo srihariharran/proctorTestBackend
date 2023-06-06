@@ -313,7 +313,7 @@ class DataBase:
             if(not (tbDetail['status'])):
                 db = mysql.connector.connect(host=self.mysql_host,user=self.mysql_user,password=self.mysql_password,database=self.database)
                 db_cursor = db.cursor()
-                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,questionDetails TEXT DEFAULT NULL,tabSwitchCount int DEFAULT NULL,webcamCount int DEFAULT NULL,doubtImages TEXT DEFAULT NULL,testDetails TEXT DEFAULT NULL,submittedBy varchar(50) DEFAULT NULL,startedOn TEXT DEFAULT NULL,submittedOn TEXT DEFAULT NULL, PRIMARY KEY (id)) ")
+                db_cursor.execute("CREATE TABLE "+tb_name+" (id int NOT NULL AUTO_INCREMENT,questionDetails LONGTEXT DEFAULT NULL,tabSwitchCount int DEFAULT NULL,webcamCount int DEFAULT NULL,doubtImages LONGTEXT DEFAULT NULL,testDetails LONGTEXT DEFAULT NULL,submittedBy varchar(50) DEFAULT NULL,startedOn TEXT DEFAULT NULL,submittedOn TEXT DEFAULT NULL, PRIMARY KEY (id)) ")
                 db.commit()
                 db_cursor.close()
                 return {
