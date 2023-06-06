@@ -41,15 +41,18 @@ def getTestReportDetails():
             questionJson=[]
             score=0
             for res in result:
+                
                 questionDetails=json.loads(res[1])
                 for questionRes in questionDetails:
                     
                     question=questionDetails[questionRes]["question"]
                     answer=questionDetails[questionRes]["answer"]
+                    
                     db_cursor.execute("SELECT options,correctAnswer FROM "+question_tb_name+" WHERE question=%s",(question,))
                     optionResult=db_cursor.fetchall()
                     
                     for optionRes in optionResult:
+                        
                         if str(answer)==str(optionRes[1]):
                             score=score+1
                         questionJson.append(
@@ -60,11 +63,14 @@ def getTestReportDetails():
                                 "correctAnswer":optionRes[1]
                             }
                         )
+                
                 details=json.loads(res[5])
+                
                 if details["webcam"]==1:
                     webcam="yes"
                 else:
                     webcam="no"
+                print(json.loads(res[4]))
                 responseJson={
                         "mode":details["mode"],
                         "duration":details["duration"],
@@ -84,7 +90,7 @@ def getTestReportDetails():
                 
             return jsonify(responseJson)
         except Exception as e:
-            # print(e)  
+            print(e)  
             return {
                 "message":str(e),
                 "status":False
@@ -95,3 +101,8 @@ def getTestReportDetails():
             "message":"Error! Invalid Method",
             "status":False
         })
+
+
+
+
+        

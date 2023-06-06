@@ -50,12 +50,24 @@ def resendOTP():
                         msg_type="Login"
                         if 'forgotOtpStatus' in redis_details:
                             updated_redis_details.pop('forgotOtpStatus',None)
+                        if 'registerOtpStatus' in redis_details:
+                            updated_redis_details.pop('registerOtpStatus',None)
                         updated_redis_details.update({'loginOtpStatus':True})
                         updated_redis_details.update({'loginOtp':sha256_crypt.hash(otp)})
+                    elif 'registerOtpStatus' in redis_details and redis_details['registerOtpStatus']:
+                        msg_type="User Registration"
+                        if 'forgotOtpStatus' in redis_details:
+                            updated_redis_details.pop('forgotOtpStatus',None)
+                        if 'loginOtpStatus' in redis_details:
+                            updated_redis_details.pop('loginOtpStatus',None)
+                        updated_redis_details.update({'registerOtpStatus':True})
+                        updated_redis_details.update({'registerOtp':sha256_crypt.hash(otp)})
                     else:
                         msg_type="Forgot Password"
                         if 'loginOtpStatus' in redis_details:
                             updated_redis_details.pop('loginOtpStatus',None)
+                        if 'registerOtpStatus' in redis_details:
+                            updated_redis_details.pop('registerOtpStatus',None)
                         updated_redis_details.update({'forgotOtpStatus':True})
                         updated_redis_details.update({'forgotOtp':sha256_crypt.hash(otp)})
                     redis_cli.setex(redis_key,timedelta(minutes=15),json.dumps(updated_redis_details))

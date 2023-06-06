@@ -52,10 +52,10 @@ def getReportDetails():
                         "submittedOn":res[8],
                         "webcamCount":res[3],
                     }
-                
+                    
             return jsonify(responseJson)
         except Exception as e:
-            # print(e)  
+            print(e)  
             return {
                 "message":str(e),
                 "status":False

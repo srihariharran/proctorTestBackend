@@ -4,7 +4,8 @@ from flask import Blueprint
 from db import DataBase
 import json
 import mysql.connector
-from passlib.hash import sha256_crypt   
+from passlib.hash import sha256_crypt  
+from datetime import datetime 
 import redis
 
 updateUserBlueprint = Blueprint('updateUserBlueprint',__name__)
@@ -26,6 +27,9 @@ def updateUser():
         designation=data['designation']
         mobile=data['mobile']
         twoFactorAuth=data['twoFactorAuth']
+        updatedOn=datetime.utcnow()
+        updatedOn=updatedOn.isoformat("T")
+        updatedOn=updatedOn[0:23] + "Z"
         if twoFactorAuth:
             twoFactorAuth=1
         else:
@@ -43,11 +47,11 @@ def updateUser():
         try:
             dbInfo.createUserTable()
             if data["password"]=="password" or data["password"]=='':
-                db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,twoFactorAuth=%s WHERE username=%s",(name,organisation,designation,mobile,twoFactorAuth,username))
+                db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,twoFactorAuth=%s,lastUpdated=%s WHERE username=%s",(name,organisation,designation,mobile,twoFactorAuth,updatedOn,username))
                 db.commit()
             else:
                 password=sha256_crypt.hash(data['password'])
-                db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,password=%s,twoFactorAuth=%s WHERE username=%s",(name,organisation,designation,mobile,password,twoFactorAuth,username))
+                db_cursor.execute("UPDATE user SET name=%s,organisation=%s,designation=%s,mobile=%s,password=%s,twoFactorAuth=%s,lastUpdated=%s WHERE username=%s",(name,organisation,designation,mobile,password,twoFactorAuth,updatedOn,username))
                 db.commit()
             return jsonify({
                 "message":"Profile Updated Successfully",

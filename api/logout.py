@@ -18,13 +18,13 @@ dbInfo = DataBase()
 def logout():
     # Checking for Request Method
     if request.method=='POST':
-        
+        redis_key=get_jwt_identity()
         jti = get_jwt()["jti"]
         # session["accessToken"]=jti
         # redis_cli=redis.Redis(host=dbInfo.redis_host,port=dbInfo.redis_port)
         redis_cli=redis.from_url(dbInfo.redis_url)
         redis_details=redis_cli.get("logoutUsers")
-        
+        redis_cli.delete(redis_key)
         redis_cli.setex("logoutUsers",timedelta(minutes=15),jti)
         return jsonify({
             "message":"Logout Successfull",

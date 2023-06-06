@@ -52,10 +52,13 @@ def getCourseDetails():
                 report_count_data=db_cursor.fetchall()
                 report_count=0
                 for report_c_res in report_count_data:
-                    report_count=report_c_res
-                db_cursor.execute("SELECT id,startedOn,submittedOn,testDetails FROM "+report_tb_name+" WHERE submittedBy=%s  ORDER BY id DESC LIMIT 1",(username,))
+                    report_count=report_c_res[0]
+                db_cursor.execute("SELECT id,startedOn,submittedOn,testDetails FROM "+report_tb_name+" WHERE submittedBy=%s and questionDetails IS NULL  ORDER BY id DESC LIMIT 1",(username,))
                 report_result=db_cursor.fetchall()
-                
+                if  (res[5]==1):
+                    webcam="yes"
+                else:
+                    webcam="no"
                 if(db_cursor.rowcount==0):
                     reportId,startedOn,submittedOn='','',''
                 else:
@@ -67,7 +70,12 @@ def getCourseDetails():
                         if startedOn!=None and submittedOn==None:
                             details=json.loads(r_res[3])
                             duration=details["duration"]
+                            # if details["noOfQuestion"]==None:
                             noOfQuestion=details["noOfQuestion"]
+                            if  (details["webcam"]==1):
+                                webcam="yes"
+                            else:
+                                webcam="no"
                         
 
                 
@@ -76,15 +84,16 @@ def getCourseDetails():
                 else:
                     mode="public"
 
-                if  (res[5]==1):
-                    webcam="yes"
-                else:
-                    webcam="no"
+                
                 if str(res[10])=="None":
                     users="None"
                 else:
                     users=json.loads(res[10])
-                
+                # print(noOfQuestion,totalNoOfQuestion)
+                if int(noOfQuestion)<=int(totalNoOfQuestion):
+                    status="False"
+                else:
+                    status="True"
                 responseJson.append(
                     {
                         "courseId":res[0],
@@ -104,7 +113,8 @@ def getCourseDetails():
                         "reportId":reportId,
                         "startedOn":startedOn,
                         "submittedOn":submittedOn,
-                        "testTaken":report_count
+                        "testTaken":report_count,
+                        "status":status
                     }
                 )
             return jsonify(responseJson)
