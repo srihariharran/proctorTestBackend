@@ -41,12 +41,13 @@ from api.getAllTestReportDetails import getAllTestReportDetailsBlueprint
 from api.getContributeReportDetails import getContributeReportDetailsBlueprint
 from api.getTestReportDetails import getTestReportDetailsBlueprint
 from api.getReportDetails import getReportDetailsBlueprint
+from api.userRegisterAuthentication import userRegisterAuthBlueprint
 
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "key"
+app.config["JWT_SECRET_KEY"] = "EBNcri5PYrn7H5j"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-app.secret_key="key"
+app.secret_key="abc"
 jwt = JWTManager(app)
 CORS(app,supports_credentials=True)
 
@@ -61,6 +62,7 @@ app.register_blueprint(checkMobileNoExistsBlueprint,url_prefix=startURL)
 app.register_blueprint(checkUsernameExistsBlueprint,url_prefix=startURL)
 app.register_blueprint(loginBlueprint,url_prefix=startURL)
 app.register_blueprint(twoFactorAuthBlueprint,url_prefix=startURL)
+app.register_blueprint(userRegisterAuthBlueprint,url_prefix=startURL)
 app.register_blueprint(forgotPasswordBlueprint,url_prefix=startURL)
 app.register_blueprint(resetPasswordBlueprint,url_prefix=startURL)
 app.register_blueprint(resendOTPBlueprint,url_prefix=startURL)
