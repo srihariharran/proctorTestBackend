@@ -11,11 +11,11 @@ class DataBase:
         self.mysql_host='127.0.0.1'
         self.mysql_user="root"
         self.mysql_password=""
-        self.database="proctorTest"
+        self.database=""
         self.redis_host="localhost"
         self.redis_port=6379
-        self.redis_password="lfTaVBkVzrw8XmR1WdJhoF48BgjyAoXz"
-        self.redis_url="rediss://localhost:6379"
+        self.redis_password=""
+        self.redis_url=""
           
 
     # Check Database Exists
